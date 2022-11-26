@@ -2,151 +2,184 @@
 This is a system that displays the menu in the restaurant, and then creates an order list by taking input from customers,
 for the reference of the restaurant management and staff.
 This way they can keep track of their sales, and all of the food items that they have catered to customers.*/
-#include <stdio.h>
-#include <conio.h>
-#include <stdlib.h> 
-#include <string.h>
-void add_order_item();
-void read_order_list();
-void modify_order_list();
-void delete_order_item();
-int option();
-struct order
-      {
-            char name[30];
-            int price;
-            int quantity;
-            int code;
-      };
-void main()
-{
-    printf("Welcome to Restaurant Sales Tracking System\n");
-    printf("Please pick dishes that have been ordered from the Menu below:\n");
-    printf("DISH CODE \t DISH NAME \t\t    DISH PRICE\n");
-    printf("001 \t       French Fries \t\t\t 60\n");
-    printf("002 \t       Cheese Burger \t\t\t 70\n");
-    printf("003 \t       Grilled Sandwich \t\t 70\n");
-    printf("004 \t       Steamed Momos \t\t\t 80\n");
-    printf("005 \t       Veg Paneer Roll \t\t\t 55\n");
-    printf("006 \t       Chicken Roll \t\t\t 65\n");
-    printf("007 \t       Schezwan Noodles \t\t 90\n");
-    printf("008 \t       Schezwan Fried Rice \t\t 90\n");
-    printf("009 \t       Chicken Shawarma \t\t 80\n");
-    printf("010 \t       Bread Omlette \t\t\t 55\n");
-    printf("011 \t       Chocolate Milkshake \t\t 50\n");
-    printf("012 \t       Rose Milk \t\t\t 30\n");
-    printf("013 \t       Mixed Fruit Juice \t\t 40\n");
-    printf("014 \t       Cold Coffee \t\t\t 50\n");
-    printf("015 \t       Milkshake with Icecream \t\t 65\n");
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+
+struct items{
+    char item[20];
+    float price;
+    int qty;
+};
+
+struct orders{
+    char customer[50];
+    char date[50];
+    int numOfItems;
+    struct items itm[50];
+};
+ 
+void BillHeader(char name[50],char date[30]){
+    printf("\n\n");
+        printf("\t    Atre's Restaurant");
+        printf("\n\t   -----------------");
+        printf("\nDate:%s",date);
+        printf("\nInvoice To: %s",name);
+        printf("\n");
+        printf("---------------------------------------\n");
+        printf("Items\t\t");
+        printf("Qty\t\t");
+        printf("Total\t\t");
+        printf("\n---------------------------------------");
+        printf("\n\n");
+}
+void BillBody(char item[30],int qty, float price){
+    printf("%s\t\t",item); 
+        printf("%d\t\t",qty); 
+        printf("%.2f\t\t",qty * price); 
+        printf("\n");
+}
+
+
+
+void BillFooter(float total){
+    printf("\n");
+    float dis = 0.1*total;
+    float netTotal=total-dis;
+    float cgst=0.09*netTotal,grandTotal=netTotal + 2*cgst;
+    printf("---------------------------------------\n");
+    printf("Sub Total\t\t\t%.2f",total);
+    printf("\nDiscount @10%s\t\t\t%.2f","%",dis);
+    printf("\n\t\t\t\t-------");
+    printf("\nNet Total\t\t\t%.2f",netTotal);
+    printf("\nCGST @9%s\t\t\t%.2f","%",cgst);
+    printf("\nSGST @9%s\t\t\t%.2f","%",cgst);
+    printf("\n---------------------------------------");
+    printf("\nGrand Total\t\t\t%.2f",grandTotal);
+    printf("\n---------------------------------------\n");
+}
+int main(){
     
-      int c;
-      char confirm='Y'; 
-      while(confirm=='Y')
-      {
-            c=option();
-            switch(c)
-{       
-                  case 1:
-                  add_order_item();
-                  break;
-                  case 2:
-                  read_order_list();
-                  break;
-                  case 3:
-                  modify_order_list();
-                  break;
-                  case 4:
-                  delete_order_item();
-                  break; 
+    int opt,n;
+    struct orders ord;
+    struct orders order;
+    char saveBill = 'Y',CheckContinue = 'Y';
+    char name[50];
+    FILE *fp;
+       
+    while(CheckContinue == 'Y'){
+    system("clear");			
+    float total = 0;
+    int invoiceFound = 0;
+    printf("\t============Atre's RESTAURANT============");
+    printf("\n\nWhat operation would you like to perform?");
+    printf("\n\n1.Generate Invoice");
+    printf("\n2.Show all previous Invoices");
+    printf("\n3.Search for an Invoice");
+    printf("\n4.Exit");
+
+    printf("\n\nOperation to be performed:\t");
+    scanf("%d",&opt);
+    fgetc(stdin);
+    switch(opt){
+        case 1:
+        system("clear");
+        printf("\nName of the customer: \t");
+        fgets(ord.customer,50,stdin);
+        ord.customer[strlen(ord.customer)-1] = 0;
+        strcpy(ord.date,__DATE__);
+        printf("\nNumber of items:\t");
+        scanf("%d",&n);
+        ord.numOfItems = n;
+        for(int i=0;i<n;i++){
+            fgetc(stdin);
+            printf("\n\n");
+            printf("Item name %d:\t",i+1);
+            fgets(ord.itm[i].item,20,stdin);
+            ord.itm[i].item[strlen(ord.itm[i].item)-1]=0;
+            printf("Item Quantity:\t");
+            scanf("%d",&ord.itm[i].qty);
+            printf("Item Price per Unit:\t");
+            scanf("%f",&ord.itm[i].price);
+            total += ord.itm[i].qty * ord.itm[i].price;
+        }
+
+        BillHeader(ord.customer,ord.date);
+        for(int i=0;i<ord.numOfItems;i++){
+            BillBody(ord.itm[i].item,ord.itm[i].qty,ord.itm[i].price);
+        }
+        BillFooter(total);
+
+        printf("\nDo you want to save the invoice [Y/N]:\t");
+        scanf("%s",&saveBill);
+
+        if(saveBill == 'Y'){
+            fp = fopen("RestaurantBill.dat","a+");
+            fwrite(&ord,sizeof(struct orders),1,fp);
+            if(fwrite != 0)
+            printf("\nSuccessfully saved");
+            else 
+            printf("\nError saving");
+            fclose(fp);
+        }
+        break;
+
+        case 2:
+        system("clear");
+        fp = fopen("RestaurantBill.dat","r");
+        printf("\n  *****Your Previous Invoices*****\n");
+        while(fread(&order,sizeof(struct orders),1,fp)){
+            float tot = 0;
+            BillHeader(order.customer,order.date);
+            for(int i=0;i<order.numOfItems;i++){
+                BillBody(order.itm[i].item,order.itm[i].qty,order.itm[i].price);
+                tot+=order.itm[i].qty * order.itm[i].price;
             }
-            printf("\nType 'Y' to continue with operations:");
-            scanf("\n%c",&confirm);
-      } 
-}
-int option()
-{
-      int ch;
-      printf("\nOptions available:");
-      printf("\nPlease press 1 to add items to order list. \nPlease press 2 to read items from order list. \n");
-      printf("Please press 3 to modify order item quantity. \nPlease press 4 to remove item from order list.");
-      printf("\nEnter choice: ");
-      scanf("%d",&ch);
-      return ch;
-}
-void add_order_item()
-{ 
-      struct order list;
-      FILE *ft;
-      char x='Y';
-      ft=fopen("Restaurant Order","a+");
-do
-      {
-            char ch;
-            printf("\nEnter the name of the item, its code, the price, and the order quantity: ");
-            scanf("%s %d %d %d",list.name,&list.code,&list.price,&list.quantity);
-            fprintf(ft,"%s   %d    %d   %d\n",list.name,list.code,list.price,list.quantity);
-printf("Type 'Y' to repeat the operation\n");
-scanf("\n%c",&ch);
-x=ch;
-      }while(x=='Y');
-      fclose(ft);
-}
-void read_order_list() 
-{
-      struct order list;
-      FILE *ft;
-      ft=fopen("Restaurant Order","r");
-      printf("NAME      CODE      PRICE     QUANTITY");
-      while(feof(ft)==0)
-      {
-            fscanf(ft,"%s     %d     %d     %d\n",list.name, &list.code,&list.price,&list.quantity);
-            printf("\n%s  %d   %d   %d",list.name,list.code,list.price,list.quantity);
-}
-fclose(ft);
-}
-void modify_order_list()
-{
-      struct order list; 
-      FILE *ft,*fp;
-      ft=fopen("Restaurant Order","r");
-      fp=fopen("temp","w+");
-      int code;
-      int quant;
-      printf("\nPlease enter the item code who's quantity is to be modified, and enter the new quantity.:\n");
-      scanf("%d %d",&code,&quant);
-      while(!feof(ft))
-      {
-            fscanf(ft,"%s     %d     %d     %d\n",list.name,&list.code,&list.price,&list.quantity);
-            if(list.code!=code)
-            fprintf(fp,"%s    %d    %d %d\n",list.name,list.code,list.price,list.quantity); 
-            else
-            { 
-                  list.quantity=quant;
-                  fprintf(fp,"%s  %d   %d   %d\n",list.name,list.code,list.price,list.quantity);
-             }
-}
-fclose(ft);
-fclose(fp);
-remove("Restaurant Order");
-rename("temp","Restaurant Order");
-}
-void delete_order_item()
-{
-      struct order list;
-      FILE *ft,*fp;
-      int code;
-      ft=fopen("Restaurant Order","r");
-      fp=fopen("temp","w+"); 
-     printf("\nPlease enter the code of the item to be deleted:\n"); 
-      scanf("%d",&code);
-      while (!feof(ft))
-      {
-            fscanf(ft,"%s     %d     %d     %d\n",list.name,&list.code,&list.price,&list.quantity);
-            if(code!=list.code)
-            fprintf(fp,"%s    %d     %d   %d\n",list.name,list.code,list.price,list.quantity);
-}
-fclose(ft);
-fclose(fp);
-      remove("Restaurant Order");
-   rename("temp","Restaurant Order");
+            BillFooter(tot);
+        }
+        fclose(fp);
+        break;
+
+        case 3:
+        printf("Enter the name of the customer:\t");
+        fgets(name,50,stdin);
+        name[strlen(name)-1] = 0;
+        system("clear");
+        fp = fopen("RestaurantBill.dat","r");
+        printf("\t*****Invoice of %s*****",name);
+        while(fread(&order,sizeof(struct orders),1,fp)){
+            float tot = 0;
+            if(!strcmp(order.customer,name)){
+            BillHeader(order.customer,order.date);
+            for(int i=0;i<order.numOfItems;i++){
+                BillBody(order.itm[i].item,order.itm[i].qty,order.itm[i].price);
+                tot+=order.itm[i].qty * order.itm[i].price;
+            }
+            BillFooter(tot);
+            invoiceFound = 1;
+            }
+        
+        }
+        if(!invoiceFound){
+            printf("Sorry the invoice for %s doesn't exists",name);
+        }
+        fclose(fp);
+        break;
+
+    case 4:
+    printf("\n\t\t...Terminating Program...\n\n");
+    exit(0);
+    break;
+
+    default:
+    printf("Sorry invalid option");
+    break;
+    }
+    printf("\nWould you like to perform another operation??[Y/N]:\t");
+    scanf("%s",&CheckContinue);
+    }
+    printf("\n\t\t Bye Bye :)\n\n");
+    printf("\n\n");
+
+    return 0;
 }

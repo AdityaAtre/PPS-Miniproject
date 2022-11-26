@@ -1,7 +1,6 @@
-/*RESTAURANT SALES TRACKER
-This is a system that displays the menu in the restaurant, and then creates an order list by taking input from customers,
-for the reference of the restaurant management and staff.
-This way they can keep track of their sales, and all of the food items that they have catered to customers.*/
+/*Restaurant Invoice Management System
+This is a system that creates invoices, stores them, displays them, and allows you to search for them.
+This way they can keep track of their invoices, and all of the food items that they have sold, and easily generate more invoices whenever required*/
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
@@ -19,7 +18,7 @@ struct orders{
     struct items itm[50];
 };
  
-void BillHeader(char name[50],char date[30]){
+void BillPartA(char name[50],char date[30]){
     printf("\n\n");
         printf("\t    Atre's Restaurant");
         printf("\n\t   -----------------");
@@ -33,7 +32,7 @@ void BillHeader(char name[50],char date[30]){
         printf("\n---------------------------------------");
         printf("\n\n");
 }
-void BillBody(char item[30],int qty, float price){
+void BillPartB(char item[30],int qty, float price){
     printf("%s\t\t",item); 
         printf("%d\t\t",qty); 
         printf("%.2f\t\t",qty * price); 
@@ -42,7 +41,7 @@ void BillBody(char item[30],int qty, float price){
 
 
 
-void BillFooter(float total){
+void BillPartC(float total){
     printf("\n");
     float dis = 0.1*total;
     float netTotal=total-dis;
@@ -104,11 +103,11 @@ int main(){
             total += ord.itm[i].qty * ord.itm[i].price;
         }
 
-        BillHeader(ord.customer,ord.date);
+        BillPartA(ord.customer,ord.date);
         for(int i=0;i<ord.numOfItems;i++){
-            BillBody(ord.itm[i].item,ord.itm[i].qty,ord.itm[i].price);
+            BillPartB(ord.itm[i].item,ord.itm[i].qty,ord.itm[i].price);
         }
-        BillFooter(total);
+        BillPartC(total);
 
         printf("\nDo you want to save the invoice [Y/N]:\t");
         scanf("%s",&saveBill);
@@ -130,12 +129,12 @@ int main(){
         printf("\n  *****Your Previous Invoices*****\n");
         while(fread(&order,sizeof(struct orders),1,fp)){
             float tot = 0;
-            BillHeader(order.customer,order.date);
+            BillPartA(order.customer,order.date);
             for(int i=0;i<order.numOfItems;i++){
-                BillBody(order.itm[i].item,order.itm[i].qty,order.itm[i].price);
+                BillPartB(order.itm[i].item,order.itm[i].qty,order.itm[i].price);
                 tot+=order.itm[i].qty * order.itm[i].price;
             }
-            BillFooter(tot);
+            BillPartC(tot);
         }
         fclose(fp);
         break;
@@ -150,12 +149,12 @@ int main(){
         while(fread(&order,sizeof(struct orders),1,fp)){
             float tot = 0;
             if(!strcmp(order.customer,name)){
-            BillHeader(order.customer,order.date);
+            BillPartA(order.customer,order.date);
             for(int i=0;i<order.numOfItems;i++){
-                BillBody(order.itm[i].item,order.itm[i].qty,order.itm[i].price);
+                BillPartB(order.itm[i].item,order.itm[i].qty,order.itm[i].price);
                 tot+=order.itm[i].qty * order.itm[i].price;
             }
-            BillFooter(tot);
+            BillPartC(tot);
             invoiceFound = 1;
             }
         
